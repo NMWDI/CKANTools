@@ -44,6 +44,7 @@ def main():
     collection = {'search': Counter(), 'download': Counter()}
     for path in paths:
         if os.path.isfile(path):
+            print 'checking {}'.format(path)
             with open(path, 'r') as rfile:
                 for line in rfile:
                     analyze(collection, line.strip())
