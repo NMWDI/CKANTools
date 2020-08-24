@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+import gzip
 import os
 import re
 from collections import Counter
@@ -39,13 +40,24 @@ def analyze(collection, l):
 
 
 def main():
-    paths = ('/var/log/apache2/ckan_default.custom.log',
-             '/var/log/apache2/ckan_default.custom.log.1')
+    root = '/var/log/apache2/'
+    paths = ['ckan_default.custom.log',
+             'ckan_default.custom.log.1',
+             ]
+    paths += ['ckan_default.custom.log.{}.gz'.format(i+1) for i in range(20)]
+
     collection = {'search': Counter(), 'download': Counter()}
     for path in paths:
+        path = os.path.join(root, path)
         if os.path.isfile(path):
             print 'checking {}'.format(path)
-            with open(path, 'r') as rfile:
+
+            if path.endswith('.gz'):
+                opener = gzip.open
+            else:
+                opener = open
+
+            with opener(path, 'r') as rfile:
                 for line in rfile:
                     analyze(collection, line.strip())
 
