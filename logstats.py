@@ -30,6 +30,19 @@ def dextract(collection, m, l):
     pass
 
 
+def report(collection):
+    report_(collection['search'], 'Search Terms')
+    print
+    report_(collection['download'], 'Downloads')
+
+
+def report_(collection, title):
+    print title
+    print '======================================='
+    for k, v in collection.most_common():
+        print '{:<20s}: {}'.format(k, v)
+
+
 def analyze(collection, l):
     for r, tag, extract, collection in ((SEARCH, 'search', sextract, collection['search']),
                                         (DOWNLOAD, 'download', dextract, collection['download'])):
@@ -61,7 +74,7 @@ def main():
                 for line in rfile:
                     analyze(collection, line.strip())
 
-    print collection
+    report(collection)
 
 
 if __name__ == '__main__':
