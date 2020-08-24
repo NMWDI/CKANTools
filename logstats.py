@@ -13,33 +13,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+import os
 import re
+from collections import Counter
 
-SEARCH = re.compile('\?q=')
+SEARCH = re.compile(r'GET \/dataset\?q=(?P<term>[^&\ ]+)')
 DOWNLOAD = re.compile('download')
 
 
-def sextract(l):
+def sextract(collection, m, l):
+    collection[m.group('term')] += 1
+
+
+def dextract(collection, m, l):
     pass
 
 
-def dextract(l):
-    pass
-
-
-def analyze(l):
-    for r, tag, extract in ((SEARCH, 'search', sextract), (DOWNLOAD, 'download', dextract)):
+def analyze(collection, l):
+    for r, tag, extract, collection in ((SEARCH, 'search', sextract, collection['search']),
+                                        (DOWNLOAD, 'download', dextract, collection['download'])):
         m = r.search(l)
+
         if m:
-            return extract(l)
+            return extract(collection, m, l)
 
 
 def main():
-    path = '/var/log/apache2/ckan_default.custom.log'
+    paths = ('/var/log/apache2/ckan_default.custom.log',
+             '/var/log/apache2/ckan_default.custom.log.1')
+    collection = {'search': Counter(), 'download': Counter()}
+    for path in paths:
+        if os.path.isfile(path):
+            with open(path, 'r') as rfile:
+                for line in rfile:
+                    analyze(collection, line.strip())
 
-    with open(path, 'r') as rfile:
-        for line in rfile:
-            analyze(line.strip())
+    print collection
 
 
 if __name__ == '__main__':
