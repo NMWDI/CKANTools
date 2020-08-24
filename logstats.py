@@ -23,7 +23,7 @@ DOWNLOAD = re.compile('download')
 
 
 def sextract(collection, m, l):
-    collection[m.group('term')] += 1
+    collection[m.group('term').replace('+', ' ')] += 1
 
 
 def dextract(collection, m, l):
@@ -40,7 +40,7 @@ def report_(collection, title):
     print title
     print '======================================='
     for k, v in collection.most_common():
-        print '{:<20s}: {}'.format(k, v)
+        print '{:<40s}: {}'.format(k, v)
 
 
 def analyze(collection, l):
